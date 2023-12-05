@@ -1,0 +1,27 @@
+[package]
+name = "tquic-example-rust"
+version = "0.3.0"
+edition = "2021"
+rust-version = "1.70.0"
+license = "Apache-2.0"
+repository = "https://github.com/tquic-group/tquic-example-rust"
+homepage = "https://tquic.net"
+description = "TQUIC example client and server"
+
+[dependencies]
+tquic = "0.3.0"
+bytes = "1"
+log = "0.4"
+mio = { version = "0.8", features = ["net", "os-poll"] }
+env_logger = "0.9"
+clap = { version = "=4.2.5", features = ["derive"] }
+rustc-hash = "1.1"
+slab = "0.4"
+
+[[bin]]
+name = "simple_client"
+path = "src/bin/simple_client.rs"
+
+[[bin]]
+name = "simple_server"
+path = "src/bin/simple_server.rs"
