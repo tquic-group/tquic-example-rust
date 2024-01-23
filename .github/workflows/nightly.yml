@@ -1,0 +1,25 @@
+name: Build nightly
+
+on:
+  schedule:
+    - cron: '30 5 * * *'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Update rust
+      run: rustup update
+    - name: Overriding with local tquic
+      run: |
+        echo "paths = [\"/tmp/tquic\"]" > $HOME/.cargo/config
+        git clone --recursive git@github.com:Tencent/tquic.git /tmp/tquic
+    - name: Build TQUIC examples
+      run: cargo build --all --verbose
