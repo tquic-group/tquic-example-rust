@@ -9,6 +9,7 @@ env:
 
 jobs:
   build:
+    if: github.repository == 'tquic-group/tquic-example-rust'
     name: Build
     runs-on: ubuntu-latest
     steps:
@@ -17,9 +18,9 @@ jobs:
         submodules: 'recursive'
     - name: Update rust
       run: rustup update
-    - name: Overriding with local tquic
+    - name: Overriding with lastest tquic
       run: |
-        echo "paths = [\"/tmp/tquic\"]" > $HOME/.cargo/config
+        echo "paths = [\"/tmp/tquic\"]" > $HOME/.cargo/config.toml
         git clone --recursive git@github.com:Tencent/tquic.git /tmp/tquic
     - name: Build TQUIC examples
       run: cargo build --all --verbose
