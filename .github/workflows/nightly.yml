@@ -3,6 +3,7 @@ name: Build nightly
 on:
   schedule:
     - cron: '30 5 * * *'
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -16,11 +17,15 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: 'recursive'
+    - uses: actions/checkout@v4
+      with:
+        repository: Tencent/tquic
+        path: deps/tquic
+        submodules: 'recursive'
     - name: Update rust
       run: rustup update
     - name: Overriding with lastest tquic
       run: |
-        echo "paths = [\"/tmp/tquic\"]" > $HOME/.cargo/config.toml
-        git clone --recursive git@github.com:Tencent/tquic.git /tmp/tquic
+        echo "paths = [\"$GITHUB_WORKSPACE/deps/tquic\"]" > $HOME/.cargo/config.toml
     - name: Build TQUIC examples
       run: cargo build --all --verbose
