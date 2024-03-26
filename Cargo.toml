@@ -9,7 +9,7 @@ homepage = "https://tquic.net"
 description = "TQUIC example client and server"
 
 [dependencies]
-tquic = "0.7.0"
+tquic = "0.8"
 bytes = "1"
 log = "0.4"
 mio = { version = "0.8", features = ["net", "os-poll"] }
