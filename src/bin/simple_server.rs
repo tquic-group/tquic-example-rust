@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::cmp;
 use std::fs::File;
 use std::net::SocketAddr;
 use std::rc::Rc;
@@ -30,7 +29,6 @@ use tquic::Error;
 use tquic::PacketInfo;
 use tquic::TlsConfig;
 use tquic::TransportHandler;
-use tquic::TIMER_GRANULARITY;
 
 use tquic_example_rust::QuicSocket;
 use tquic_example_rust::Result;
@@ -277,17 +275,7 @@ fn main() -> Result<()> {
             error!("process connections error: {:?}", e);
         }
 
-        let timeout = server
-            .endpoint
-            .timeout()
-            .map(|v| cmp::max(v, TIMER_GRANULARITY));
-        server.poll.poll(&mut events, timeout)?;
-
-        // Process timeout events
-        if events.is_empty() {
-            server.endpoint.on_timeout(Instant::now());
-            continue;
-        }
+        server.poll.poll(&mut events, server.endpoint.timeout())?;
 
         // Process IO events
         for event in events.iter() {
@@ -295,5 +283,10 @@ fn main() -> Result<()> {
                 server.process_read_event(event)?;
             }
         }
+
+        // Process timeout events.
+        // Note: Since `poll()` doesn't clearly tell if there was a timeout when it returns,
+        // it is up to the endpoint to check for a timeout and deal with it.
+        server.endpoint.on_timeout(Instant::now());
     }
 }
