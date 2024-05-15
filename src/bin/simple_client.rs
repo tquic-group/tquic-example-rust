@@ -13,7 +13,6 @@
 // limitations under the License.
 
 use std::cell::RefCell;
-use std::cmp;
 use std::net::SocketAddr;
 use std::rc::Rc;
 use std::time::Instant;
@@ -30,7 +29,6 @@ use tquic::Error;
 use tquic::PacketInfo;
 use tquic::TlsConfig;
 use tquic::TransportHandler;
-use tquic::TIMER_GRANULARITY;
 
 use tquic_example_rust::QuicSocket;
 use tquic_example_rust::Result;
@@ -324,14 +322,7 @@ fn main() -> Result<()> {
             break;
         }
 
-        let timeout = cmp::min(client.endpoint.timeout(), Some(TIMER_GRANULARITY));
-        client.poll.poll(&mut events, timeout)?;
-
-        // Process timeout events
-        if events.is_empty() {
-            client.endpoint.on_timeout(Instant::now());
-            continue;
-        }
+        client.poll.poll(&mut events, client.endpoint.timeout())?;
 
         // Process IO events
         for event in events.iter() {
@@ -339,6 +330,11 @@ fn main() -> Result<()> {
                 client.process_read_event(event)?;
             }
         }
+
+        // Process timeout events.
+        // Note: Since `poll()` doesn't clearly tell if there was a timeout when it returns,
+        // it is up to the endpoint to check for a timeout and deal with it.
+        client.endpoint.on_timeout(Instant::now());
     }
     Ok(())
 }
